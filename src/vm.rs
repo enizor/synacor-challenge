@@ -44,8 +44,16 @@ impl VirtualMachine {
                 self.memory[self.memory[pos + 1] as usize] = self.decode(pos + 2);
                 Some(pos + 3)
             }
-            2 => Some(pos + 2),
-            3 => Some(pos + 2),
+            2 => {
+                let x = self.decode(pos + 1);
+                self.stack.push(x);
+                Some(pos + 2)
+            }
+            3 => {
+                let x = self.stack.pop();
+                self.memory[self.memory[pos + 1] as usize] = x.expect("Cannot pop from stack!");
+                Some(pos + 2)
+            }
             4 => {
                 self.memory[self.memory[pos + 1] as usize] =
                     if self.decode(pos + 2) == self.decode(pos + 3) {
@@ -155,5 +163,15 @@ mod tests {
         assert_eq!(vm.memory[1 << 15], 42);
         assert_eq!(vm.memory[1 + (1 << 15)], 1);
         assert_eq!(vm.memory[2 + (1 << 15)], 1);
+    }
+
+    #[test]
+    fn stack_op() {
+        let mut vm = VirtualMachine::new();
+        for (i, &x) in [1, 32768, 42, 2, 32768, 3, 32769].iter().enumerate() {
+            vm.memory[i] = x;
+        }
+        vm.run();
+        assert_eq!(vm.memory[1 + (1 << 15)], 42);
     }
 }
