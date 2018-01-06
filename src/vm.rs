@@ -75,9 +75,21 @@ impl VirtualMachine {
             6 => None,
             7 => None,
             8 => None,
-            9 => None,
-            10 => None,
-            11 => None,
+            9 => {
+                let res = self.decode(pos + 2).wrapping_add(self.decode(pos + 3)) % (1 << 15);
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 4)
+            }
+            10 => {
+                let res = self.decode(pos + 2).wrapping_mul(self.decode(pos + 3)) % (1 << 15);
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 4)
+            }
+            11 => {
+                let res = self.decode(pos + 2) % self.decode(pos + 3);
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 4)
+            }
             12 => None,
             13 => None,
             14 => None,
@@ -174,4 +186,35 @@ mod tests {
         vm.run();
         assert_eq!(vm.memory[1 + (1 << 15)], 42);
     }
+
+    #[test]
+    fn math_op() {
+        let mut vm = VirtualMachine::new();
+        for (i, &x) in [
+            1,
+            32768,
+            42,
+            9,
+            32769,
+            32768,
+            32760,
+            10,
+            32770,
+            32768,
+            32000,
+            11,
+            32771,
+            32770,
+            5,
+        ].iter()
+            .enumerate()
+        {
+            vm.memory[i] = x;
+        }
+        vm.run();
+        assert_eq!(vm.memory[32769], 34);
+        assert_eq!(vm.memory[32770], 512);
+        assert_eq!(vm.memory[32771], 2);
+    }
+
 }
