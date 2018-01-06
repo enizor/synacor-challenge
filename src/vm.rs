@@ -1,9 +1,8 @@
-use std::io::{Bytes, Read};
+use std::io::{stdin, Bytes, Read};
 use std::fmt;
 
 pub struct VirtualMachine {
-    memory: [u16; 1 << 15],
-    registers: [u16; 8],
+    memory: [u16; (1 << 15)+8],
     stack: Vec<u16>,
 }
 
@@ -25,8 +24,7 @@ impl VirtualMachine {
 
     pub fn new() -> VirtualMachine {
         VirtualMachine {
-            memory: [0; 1 << 15],
-            registers: [0; 8],
+            memory: [0; (1 << 15)+8],
             stack: vec![],
         }
     }
@@ -35,13 +33,13 @@ impl VirtualMachine {
         match self.memory[pos] {
             0 => None,
             1 => {
-                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] = self.memory[pos + 2];
+                self.memory[self.memory[pos + 1] as usize] = self.memory[pos + 2];
                 Some(pos + 3)
             }
             2 => None,
             3 => None,
             4 => {
-                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] =
+                self.memory[self.memory[pos + 1] as usize] =
                     if self.memory[pos + 2] == self.memory[pos + 2] {
                         1
                     } else {
@@ -50,7 +48,7 @@ impl VirtualMachine {
                 Some(pos + 4)
             }
             5 => {
-                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] =
+                self.memory[self.memory[pos + 1] as usize] =
                     if self.memory[pos + 2] >= self.memory[pos + 2] {
                         1
                     } else {
@@ -93,10 +91,8 @@ impl fmt::Debug for VirtualMachine {
         write!(
             f,
             "Memory (10 first numbers): {:?}
-Registers: {:?}
 Stack (top element): {:?}",
             &self.memory[0..10],
-            self.registers,
             self.stack.last()
         )
     }
@@ -135,8 +131,8 @@ mod tests {
             vm.memory[i] = x;
         }
         vm.run();
-        assert_eq!(vm.registers[0], 42);
-        assert_eq!(vm.registers[1], 1);
-        assert_eq!(vm.registers[2], 1);
+        assert_eq!(vm.memory[1<<15], 42);
+        assert_eq!(vm.memory[1+(1<<15)], 1);
+        assert_eq!(vm.memory[2+(1<<15)], 1);
     }
 }
