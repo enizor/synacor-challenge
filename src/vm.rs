@@ -65,7 +65,7 @@ impl VirtualMachine {
             }
             5 => {
                 self.memory[self.memory[pos + 1] as usize] =
-                    if self.decode(pos + 2) >= self.decode(pos + 3) {
+                    if self.decode(pos + 2) > self.decode(pos + 3) {
                         1
                     } else {
                         0
@@ -131,11 +131,7 @@ impl VirtualMachine {
                 Some(self.decode(pos + 1) as usize)
             }
             18 => {
-                self.stack.pop().map_or(
-                    None,
-                    |x| Some(self.decode(x as usize)),
-                );
-                Some(self.decode(pos + 1) as usize)
+                self.stack.pop().map_or(None, |x| Some(x as usize))
             }
             19 => {
                 print!("{}", self.memory[pos + 1] as u8 as char);
