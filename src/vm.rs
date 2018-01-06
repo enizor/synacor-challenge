@@ -90,9 +90,21 @@ impl VirtualMachine {
                 self.memory[self.memory[pos + 1] as usize] = res;
                 Some(pos + 4)
             }
-            12 => None,
-            13 => None,
-            14 => None,
+            12 => {
+                let res = self.decode(pos + 2) & self.decode(pos + 3);
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 4)
+            }
+            13 => {
+                let res = self.decode(pos + 2) | self.decode(pos + 3);
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 4)
+            }
+            14 => {
+                let res = (!self.decode(pos + 2)) & 0x7fff_u16;
+                self.memory[self.memory[pos + 1] as usize] = res;
+                Some(pos + 3)
+            }
             15 => None,
             16 => None,
             17 => None,
@@ -217,4 +229,29 @@ mod tests {
         assert_eq!(vm.memory[32771], 2);
     }
 
+    #[test]
+    fn bitwise_op() {
+        let mut vm = VirtualMachine::new();
+        for (i, &x) in [
+            12,
+            32769,
+            0xab,
+            0x42,
+            13,
+            32770,
+            0xab,
+            0x42,
+            14,
+            32771,
+            0x43ab,
+        ].iter()
+            .enumerate()
+        {
+            vm.memory[i] = x;
+        }
+        vm.run();
+        assert_eq!(vm.memory[32769], 2);
+        assert_eq!(vm.memory[32770], 0xeb);
+        assert_eq!(vm.memory[32771], 0x3c54);
+    }
 }
