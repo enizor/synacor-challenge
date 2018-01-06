@@ -8,7 +8,6 @@ pub struct VirtualMachine {
     exec_pointer: u16,
 }
 
-#[allow(dead_code)]
 impl VirtualMachine {
     pub fn new<R: Read>(buffer: Bytes<R>) -> VirtualMachine {
         let mut vm = VirtualMachine {
@@ -31,10 +30,6 @@ impl VirtualMachine {
             }
         }
         vm
-    }
-
-    pub fn get_memory(&self, pos: usize) -> u16 {
-        self.memory[pos]
     }
 }
 
@@ -76,7 +71,7 @@ mod tests {
             Cursor::new(to_binary(&[9, 32768, 32769, 4, 19, 32768]));
         let vm_simple_example = VirtualMachine::new(simple_example.bytes());
         println!("{:?}", vm_simple_example);
-        assert_eq!(vm_simple_example.get_memory(1), 32768)
+        assert_eq!(vm_simple_example.memory[1], 32768)
     }
 
 }

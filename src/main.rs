@@ -1,4 +1,4 @@
-use std::io::{stdin, Read};
+use std::io::{Read};
 use std::fs::File;
 use std::env::args;
 
@@ -7,7 +7,7 @@ use vm::VirtualMachine;
 
 fn main() {
 
-    let mut input = args()
+    let  input = args()
         .nth(1).expect(
         "Please enter the path for the binary to read as the only argument",
     );
