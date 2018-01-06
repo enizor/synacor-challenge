@@ -30,6 +30,62 @@ impl VirtualMachine {
             stack: vec![],
         }
     }
+
+    fn exec(&mut self, pos: usize) -> Option<usize> {
+        match self.memory[pos] {
+            0 => None,
+            1 => {
+                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] = self.memory[pos + 2];
+                Some(pos + 3)
+            }
+            2 => None,
+            3 => None,
+            4 => {
+                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] =
+                    if self.memory[pos + 2] == self.memory[pos + 2] {
+                        1
+                    } else {
+                        0
+                    };
+                Some(pos + 4)
+            }
+            5 => {
+                self.registers[(self.memory[pos + 1] % (1 << 15)) as usize] =
+                    if self.memory[pos + 2] >= self.memory[pos + 2] {
+                        1
+                    } else {
+                        0
+                    };
+                Some(pos + 4)
+            }
+            6 => None,
+            7 => None,
+            8 => None,
+            9 => None,
+            10 => None,
+            11 => None,
+            12 => None,
+            13 => None,
+            14 => None,
+            15 => None,
+            16 => None,
+            17 => None,
+            18 => None,
+            19 => None,
+            20 => None,
+            _ => None,
+        }
+    }
+
+    pub fn run(&mut self) {
+        let mut pos = 0;
+        loop {
+            match self.exec(pos) {
+                Some(n) => pos = n,
+                None => break,
+            }
+        }
+    }
 }
 
 impl fmt::Debug for VirtualMachine {
@@ -69,4 +125,18 @@ mod tests {
         assert_eq!(vm_simple_example.memory[1], 32768)
     }
 
+    #[test]
+    fn setters_op() {
+        let mut vm = VirtualMachine::new();
+        for (i, &x) in [1, 32768, 42, 4, 32769, 1, 1, 5, 32770, 2, 48, 25]
+            .iter()
+            .enumerate()
+        {
+            vm.memory[i] = x;
+        }
+        vm.run();
+        assert_eq!(vm.registers[0], 42);
+        assert_eq!(vm.registers[1], 1);
+        assert_eq!(vm.registers[2], 1);
+    }
 }
