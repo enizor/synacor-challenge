@@ -11,8 +11,7 @@ fn main() {
         .nth(1).expect(
         "Please enter the path for the binary to read as the only argument",
     );
-    println!("{:?}",input );
     let f = File::open(input.trim()).unwrap();
-    let vm = VirtualMachine::new(f.bytes());
-    println!("{:?}", vm);
+    let mut vm = VirtualMachine::new();
+    vm.init(f.bytes());
 }
