@@ -29,18 +29,26 @@ impl VirtualMachine {
         }
     }
 
+    fn decode(&self, pos: usize) -> u16 {
+        match self.memory[pos] {
+            0...32767 => self.memory[pos],
+            32768...32775 => self.memory[self.memory[pos] as usize],
+            _ => panic!("Memory error: int too big"),
+        }
+    }
+
     fn exec(&mut self, pos: usize) -> Option<usize> {
         match self.memory[pos] {
             0 => None,
             1 => {
-                self.memory[self.memory[pos + 1] as usize] = self.memory[pos + 2];
+                self.memory[self.memory[pos + 1] as usize] = self.decode(pos + 2);
                 Some(pos + 3)
             }
-            2 => None,
-            3 => None,
+            2 => Some(pos + 2),
+            3 => Some(pos + 2),
             4 => {
                 self.memory[self.memory[pos + 1] as usize] =
-                    if self.memory[pos + 2] == self.memory[pos + 2] {
+                    if self.decode(pos + 2) == self.decode(pos + 3) {
                         1
                     } else {
                         0
@@ -49,7 +57,7 @@ impl VirtualMachine {
             }
             5 => {
                 self.memory[self.memory[pos + 1] as usize] =
-                    if self.memory[pos + 2] >= self.memory[pos + 2] {
+                    if self.decode(pos + 2) >= self.decode(pos + 3) {
                         1
                     } else {
                         0
@@ -137,7 +145,7 @@ mod tests {
     #[test]
     fn setters_op() {
         let mut vm = VirtualMachine::new();
-        for (i, &x) in [1, 32768, 42, 4, 32769, 1, 1, 5, 32770, 2, 48, 25]
+        for (i, &x) in [1, 32768, 42, 4, 32769, 32768, 42, 5, 32770, 32768, 32769]
             .iter()
             .enumerate()
         {
