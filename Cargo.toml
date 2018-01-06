@@ -1,0 +1,6 @@
+[package]
+name = "synacor-challenge"
+version = "0.1.0"
+authors = ["Rémi Garde <remi.garde@free.fr>"]
+
+[dependencies]
