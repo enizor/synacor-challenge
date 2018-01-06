@@ -2,7 +2,7 @@ use std::io::{stdin, Bytes, Read};
 use std::fmt;
 
 pub struct VirtualMachine {
-    memory: [u16; (1 << 15)+8],
+    memory: [u16; (1 << 15) + 8],
     stack: Vec<u16>,
 }
 
@@ -24,7 +24,7 @@ impl VirtualMachine {
 
     pub fn new() -> VirtualMachine {
         VirtualMachine {
-            memory: [0; (1 << 15)+8],
+            memory: [0; (1 << 15) + 8],
             stack: vec![],
         }
     }
@@ -91,8 +91,10 @@ impl fmt::Debug for VirtualMachine {
         write!(
             f,
             "Memory (10 first numbers): {:?}
+Registers: {:?}
 Stack (top element): {:?}",
             &self.memory[0..10],
+            &self.memory[1 << 15..8 + (1 << 15)],
             self.stack.last()
         )
     }
@@ -131,8 +133,8 @@ mod tests {
             vm.memory[i] = x;
         }
         vm.run();
-        assert_eq!(vm.memory[1<<15], 42);
-        assert_eq!(vm.memory[1+(1<<15)], 1);
-        assert_eq!(vm.memory[2+(1<<15)], 1);
+        assert_eq!(vm.memory[1 << 15], 42);
+        assert_eq!(vm.memory[1 + (1 << 15)], 1);
+        assert_eq!(vm.memory[2 + (1 << 15)], 1);
     }
 }
