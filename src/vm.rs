@@ -130,20 +130,17 @@ impl VirtualMachine {
                 self.stack.push((pos + 2) as u16);
                 Some(self.decode(pos + 1) as usize)
             }
-            18 => {
-                self.stack.pop().map_or(None, |x| Some(x as usize))
-            }
+            18 => self.stack.pop().map_or(None, |x| Some(x as usize)),
             19 => {
-                print!("{}", self.memory[pos + 1] as u8 as char);
+                print!("{}", self.decode(pos + 1) as u8 as char);
                 Some(pos + 2)
             }
             20 => {
-                let mut input = String::new();
-                stdin().read_line(&mut input).expect(
-                    "Error while reading stdin",
-                );
-                self.memory[self.memory[pos + 1] as usize] = input.chars().next().unwrap_or(' ') as
-                    u8 as u16;
+                let mut input = [0];
+
+                let stdin = stdin();
+                assert!(stdin.lock().take(1).read(&mut input).is_ok());
+                self.memory[self.memory[pos + 1] as usize] = input[0] as u16;
                 Some(pos + 2)
             }
             _ => Some(pos + 1),
